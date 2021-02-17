@@ -17,13 +17,19 @@ with open('matrix_data.csv') as csv_file:
             line_count += 1
     print(f'Processed {line_count} lines.')
 
-print("Epsilon:", data[0])
 
 epsilon = float(data[0])
 discount_factor = float(data[1])
 learning_rate = float(data[2])
 width = int(float(data[3]))
 height = int(float(data[4]))
+
+# printing hyper parameters
+print("Epsilon:", epsilon)
+print("Discount factor:", discount_factor)
+print("Learning rate:", learning_rate)
+print("Rows:", height)
+print("Columns:", width)
 
 matrix = np.zeros((height, width))
 
