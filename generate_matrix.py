@@ -2,6 +2,7 @@
 # format: (epsilon, discount factor, learning rate, dimension x, dimension, y, a[x=0][y=0], ... , a[x=x][y=y])
 
 import numpy as np
+import csv
 
 # set hyper parameters
 print("Epsilon:")
@@ -42,8 +43,8 @@ def gen_maze(height, width, parameters):
 def premade_maze():
     #Create a 2D numpy array to hold the rewards for each state. 
     #The array contains 11 rows and 11 columns (to match the shape of the environment), and each value is initialized to -100.
-    rewards = np.full((width, height), -100.)
-    rewards[0, 5] = 100. #set the reward for the packaging area (i.e., the goal) to 100
+    rewards = np.full((width, height), -100)
+    rewards[0, 5] = 100 #set the reward for the packaging area (i.e., the goal) to 100
 
     #define aisle locations (i.e., white squares) for rows 1 through 9
     aisles = {} #store locations in a dictionary
@@ -71,17 +72,20 @@ def premade_maze():
 
 # premade maze has size 11
 premade = premade_maze()
-print("premade[5][5] =", premade[5][5])
-for row in range(height):
-        for col in range(width):
-            parameters.append(premade[row][col])
+#print("premade[5][5] =", premade[5][5])
+#for row in range(height):
+#        for col in range(width):
+#            parameters.append(premade[row][col])
 
 #gen_maze(parameters)
 
 # store in a csv
-data = np.asarray(parameters)
-#data.tofile('matrix_data.csv',sep=',',format='%10.5f')
-for x in data:
-    print(x)
+#data = np.asarray(parameters)
     
-data.tofile('matrix_data.csv',sep=',')
+#data.tofile('matrix_data.csv',sep=',')
+
+with open('matrix_data.csv', 'w') as csv_file:
+    csv_writer = csv.writer(csv_file, delimiter=',')
+    csv_writer.writerow(parameters)
+    for row in range(height):
+        csv_writer.writerow(premade[row])
