@@ -19,11 +19,11 @@ int convert_index(int dimensions, int row, int col, int depth) { // note: max_de
     int index;
     if(dimensions == 3) {
         index = depth + (col * NUM_ACTIONS) + (row * max_cols * NUM_ACTIONS);
-        printf("convert_index(): converted row: %d, col: %d, depth: %d to index: %d\n", row, col, depth, index);
+        //printf("convert_index(): converted row: %d, col: %d, depth: %d to index: %d\n", row, col, depth, index);
     }
     else if(dimensions == 2) {
-        index = col + (row * col);
-        printf("convert_index(): converted row: %d, col: %d to index: %d\n", row, col, index);
+        index = col + (row * max_cols);
+        //printf("convert_index(): converted row: %d, col: %d to index: %d\n", row, col, index);
     }
     else {
         index = -1;
@@ -124,7 +124,7 @@ state get_next_location(int old_row, int old_col, int action_num) {
 }
 
 // get the best path following the Q-table
-state *get_best_path(int **q_table[], int values[], int start_row, int start_col) {
+state *get_best_path(int q_table[], int values[], int start_row, int start_col) {
     // return an array of states
     state* path = (state *) malloc(100*sizeof(state));
     int path_index = 0;
@@ -150,25 +150,29 @@ state *get_best_path(int **q_table[], int values[], int start_row, int start_col
     return path;
 }
 
-// def get_best_path(q_table, values, start_row, start_col):
-//     path = []
-//     curr_row, curr_col = start_row, start_col
-//     # keep appending while not terminal
-//     while not is_terminal(values, curr_row, curr_col):
-//         path.append([curr_row, curr_col])
-//         action_num = get_next_action(q_table, 1, curr_row, curr_col)
-//         curr_row, curr_col = get_next_location(curr_row, curr_col, height, width, action_num)
-//     # append the terminal state as well
-//     path.append([curr_row, curr_col])
-//     return path
+int get_path_cost(int values[], state *path) {
+    int cost = 0;
+    int path_index = 0;
+    state temp = path[path_index];
+    while(!is_terminal(values, temp)) {
+        cost += values[convert_index(2, temp.row, temp.col, 0)];
+        path_index++;
+        temp = path[path_index];
+    }
+    return cost;
+}
 
-int get_path_cost(int values[], state *path);
-//     cost = 0
-//     for row, col in path:
-//         cost += values[row][col]
-//     return cost
-
-
+void print_path(int values[], state *path) {
+    int path_index = 0;
+    state temp = path[path_index];
+    while(!is_terminal(values, temp)) {
+        printf("(%d, %d) ", temp.row, temp.col);
+        path_index++;
+        temp = path[path_index];
+    }
+    printf("(%d, %d) ", temp.row, temp.col);
+    printf("\n");
+}
 
 int main() {
     FILE *matrix_data = fopen("../matrix_data.csv", "r");
@@ -302,6 +306,13 @@ int main() {
     state next_loc = get_next_location(1, 1, temp_move);
     printf("next_location from (1, 1) and move: %s (%d, %d)\n", actions[temp_move], next_loc.row, next_loc.col);
 
+    // testing get_best_path
+    state *best_path = get_best_path(q_table, values, 9, 5);
+    printf("Best path: ");
+    print_path(values, best_path);
+    int cost = get_path_cost(values, best_path);
+    printf("Cost of best path: %d\n", cost);
+    free(best_path);
 
     free(q_table);
     return 0;
