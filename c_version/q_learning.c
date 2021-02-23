@@ -46,7 +46,7 @@ bool is_terminal(int values[], state my_state) {
 
 // gets a random valid start state given max rows and cols
 state get_rand_start(int values[], int max_rows, int max_cols) {
-    printf("Getting a new random start\n");
+    //printf("Getting a new random start\n");
     int r = rand() % max_rows;
     int c = rand() % max_cols;
     state my_state;
@@ -68,7 +68,7 @@ int get_next_action(int q_table[], double epsilon, int row, int col) {
     action_num = max_index = max = -1;
 
     float rand_val = (double)rand() / (double)RAND_MAX;
-    printf("random value in range 0 -> 1: %f\n", rand_val);
+    //printf("random value in range 0 -> 1: %f\n", rand_val);
     // take the greedy action
     if(rand_val < epsilon) {
         for(int i = 0; i < NUM_ACTIONS; i++) {
@@ -81,12 +81,12 @@ int get_next_action(int q_table[], double epsilon, int row, int col) {
         }
         // save the index of the max value as the best action
         action_num = max_index;
-        printf("greedy action for row: %d, col: %d is: %d\n", row, col, action_num);
+        //printf("greedy action for row: %d, col: %d is: %d\n", row, col, action_num);
     }
     // take a random action
     else {
         action_num = rand() % 4;
-        printf("random action for row: %d, col: %d is: %d\n", row, col, action_num);;
+        //printf("random action for row: %d, col: %d is: %d\n", row, col, action_num);;
     }
     if(action_num == -1) {
         // still unset so error
@@ -103,7 +103,7 @@ state get_next_location(int old_row, int old_col, int action_num) {
     int new_col = old_col;
     char action_name[10]; // all the actions are < 10 letters
     strcpy(action_name, actions[action_num]);
-    printf("get_next_location(): Checking action_name: %s\n", action_name);
+    //printf("get_next_location(): Checking action_name: %s\n", action_name);
     if(strcmp(action_name, "up") == 0 && old_row > 0) {
         new_row = old_row - 1;
     }
@@ -159,6 +159,7 @@ int get_path_cost(int values[], state *path) {
         path_index++;
         temp = path[path_index];
     }
+    cost += values[convert_index(2, temp.row, temp.col, 0)];
     return cost;
 }
 
@@ -172,6 +173,41 @@ void print_path(int values[], state *path) {
     }
     printf("(%d, %d) ", temp.row, temp.col);
     printf("\n");
+}
+
+// training function
+void q_training(int q_table[], int values[], double epsilon, double discount_factor, double learning_rate) {
+    state curr_state, old_state;
+    int action_num, reward, old_q_value, temp_diff, new_q_value;
+    int index, max; 
+    for(int episode = 0; episode < 1000; episode++) {
+        curr_state = get_rand_start(values, max_rows, max_cols);
+        // take actions from this random start state until we terminate 
+        while(!is_terminal(values, curr_state)) {
+            // get an action
+            action_num = get_next_action(q_table, epsilon, curr_state.row, curr_state.col);
+            // perform the action
+            old_state.row = curr_state.row;
+            old_state.col = curr_state.col;
+            curr_state = get_next_location(curr_state.row, curr_state.col, action_num);
+            // receive the reward
+            reward = values[convert_index(2, curr_state.row, curr_state.col, 0)];
+            // calculate temporal difference
+            old_q_value = q_table[convert_index(3, old_state.row, old_state.col, action_num)];
+            // find the max value
+            max = -100000;
+            for(int i = 0; i < NUM_ACTIONS; i++) {
+                index = convert_index(3, curr_state.row, curr_state.col, i);
+                if(q_table[index] > max) {
+                    max = q_table[index];
+                }
+            }
+            temp_diff = reward + (discount_factor * max) - old_q_value;
+            // update Q-value
+            new_q_value = old_q_value + (learning_rate * temp_diff);
+            q_table[convert_index(3, old_state.row, old_state.col, action_num)] = new_q_value;
+        }
+    }
 }
 
 int main() {
@@ -256,24 +292,20 @@ int main() {
     // testing hyper parameters
     printf("\nTesting hyper parameters:\n%f, %f, %f, %f, %f\n", epsilon, discount_factor, learning_rate, width, height);
 
-    // setting and testing actions
-    printf("Testing an action in actions array:\n%s\n", actions[0]);
-
-    // testing state struct
-    state my_state = {0, 0};
-    printf("Testing row, col of a state:\n%d, %d\n", my_state.row, my_state.col);
-
-    // used for epsilon
-    printf("rand: %d\nRAND_MAX: %d\n", rand(), RAND_MAX);
-    float rand_val = (double)rand() / (double)RAND_MAX;
-    printf("random value in range 0 -> 1: %f\n", rand_val);
-
     // initialize 3D q_table: dim = (height, width, NUM_ACTIONS)
     size_t nbytes = height * width * NUM_ACTIONS * sizeof(int);
     // use flat 1D array for q_table implementation
     int *q_table = (int*) malloc(nbytes);
     memset(q_table, 0, nbytes);
 
+    // start the actual training
+    q_training(q_table, values, epsilon, discount_factor, learning_rate);
+    state *best_path = get_best_path(q_table, values, 3, 9);
+    print_path(values, best_path);
+    int cost = get_path_cost(values, best_path);
+    printf("%d\n", cost);
+
+    /*
     // test get_next_action()
     int action_num = get_next_action(q_table, epsilon, 0, 0);
     printf("action_num = %d\n", action_num);
@@ -313,6 +345,8 @@ int main() {
     int cost = get_path_cost(values, best_path);
     printf("Cost of best path: %d\n", cost);
     free(best_path);
+    */
+
 
     free(q_table);
     return 0;
