@@ -32,17 +32,34 @@ int convert_index(int dimensions, int row, int col, int depth) { // note: max_de
 }
 
 // checks if the given row, col state is terminal
-bool is_terminal(int values[], int row, int col);
+bool is_terminal(int values[], state my_state) {
+    // -1 defined as the value of squares that are non-terminal
+    int nonterminal_value = -1;
+    if(values[convert_index(2, my_state.row, my_state.col, 0)] == nonterminal_value) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
 
 // gets a random valid start state given max rows and cols
-state get_rand_start(int values[], int max_rows, int max_cols);
-// def get_rand_start(values, max_rows, max_cols):
-//     start_row = np.random.randint(max_rows)
-//     start_col = np.random.randint(max_cols)
-//     while is_terminal(values, start_row, start_col):
-//         start_row = np.random.randint(max_rows)
-//         start_col = np.random.randint(max_cols)
-//     return start_row, start_col
+state get_rand_start(int values[], int max_rows, int max_cols) {
+    printf("Getting a new random start\n");
+    int r = rand() % max_rows;
+    int c = rand() % max_cols;
+    state my_state;
+    my_state.row = r;
+    my_state.col = c;
+    while(is_terminal(values, my_state)) {
+        // keep finding new starts until not a terminal state
+        r = rand() % max_rows;
+        c = rand() % max_cols;
+        my_state.row = r;
+        my_state.col = c;
+    }
+    return my_state;
+}
 
 // get the next action following an epsilon greedy choice
 int get_next_action(int q_table[], double epsilon, int row, int col) {
@@ -77,14 +94,6 @@ int get_next_action(int q_table[], double epsilon, int row, int col) {
     }
     return action_num;
 }
-// def get_next_action(q_table, epsilon, row, col):
-//     # return greedy action
-//     if np.random.random() < epsilon:
-//         action_num = np.argmax(q_table[row][col])
-//     # return random action
-//     else:
-//         action_num = np.random.randint(num_actions)
-//     return action_num
 
 // get the next location. if invalid, don't move
 state get_next_location(int old_row, int old_col, int max_rows, int max_cols, int action_num);
@@ -138,11 +147,15 @@ int main() {
     int temp;
     int row = 0;
    
-    //int index = 0;
     
     // hyper parameters
     double epsilon, discount_factor, learning_rate, width, height;
-    int param_num = 0;
+    int param_num = 0; // for hyper parameter switch case
+    // for the values matrix
+    int *values;
+    bool created_values_array = false;
+    int index = 0;
+    // for saving the tokens in the csv file
     char *ptr;
     printf("Printing contents of matrx_data.csv\n");
     while(fgets(buffer, sizeof(buffer), matrix_data)) {
@@ -184,8 +197,17 @@ int main() {
             }
             // the rest of the rows are for the matrix
             else {
-                // initialize the matrix given height and width
-
+                if(!created_values_array) {
+                    // initialize the matrix given height and width
+                    values = (int *)malloc(height * width * sizeof(int));
+                    if (values == NULL) { 
+                        printf("Memory not allocated.\n"); 
+                        exit(1); 
+                    } 
+                    created_values_array = true;
+                }
+                values[index] = atoi(token);
+                index++;
             }
 
             token = strtok(NULL, ",");
@@ -220,11 +242,19 @@ int main() {
     q_table[convert_index(3, 0, 0, 1)] = 10;
     action_num = get_next_action(q_table, 1, 0, 0);
     if(action_num == 1) {
-        printf("get_next_action test passed");
+        printf("get_next_action test passed\n");
     }
     else {
-        printf("get_next_action test failed");
+        printf("get_next_action test failed\n");
     }
 
+    // testing get_rand_start
+    state start;
+    for(int i = 0; i < 10; i++) {
+        start = get_rand_start(values, height, width);
+        printf("valid start: (%d, %d)\n", start.row, start.col);
+    }
+
+    free(q_table);
     return 0;
 }
