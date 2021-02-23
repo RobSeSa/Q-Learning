@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #define NUM_ACTIONS 4
+const char *actions[] = {"up", "right", "down", "left"};
 int max_rows;
 int max_cols;
 
@@ -96,22 +97,31 @@ int get_next_action(int q_table[], double epsilon, int row, int col) {
 }
 
 // get the next location. if invalid, don't move
-state get_next_location(int old_row, int old_col, int max_rows, int max_cols, int action_num);
-// def get_next_location(old_row, old_col, max_rows, max_cols, action_num):
-//     # check U, D, L, R
-//     new_row = old_row
-//     new_col = old_col
-//     action_name = actions[action_num]
-//     if action_name == 'up' and old_row > 0:
-//         new_row = old_row - 1
-//     elif action_name == 'right' and old_col < max_cols - 1:
-//         new_col = old_col + 1
-//     elif action_name == 'down' and old_row < max_rows - 1:
-//         new_row = old_row + 1
-//     elif action_name == 'left' and old_col > 0:
-//         new_col = old_col - 1
-//     # else invalid move -> dont move
-//     return new_row, new_col
+state get_next_location(int old_row, int old_col, int max_rows, int max_cols, int action_num) {
+    // check U, D, L, R
+    int new_row = old_row;
+    int new_col = old_col;
+    char action_name[10]; // all the actions are < 10 letters
+    strcpy(action_name, actions[action_num]);
+    printf("get_next_location(): Checking action_name: %s\n", action_name);
+    if(strcmp(action_name, "up") == 0 && old_row > 0) {
+        new_row = old_row - 1;
+    }
+    else if(strcmp(action_name, "right") == 0 && old_col < max_cols - 1) {
+        new_col = old_col + 1;
+    }
+    else if(strcmp(action_name, "down") == 0 && old_row < max_rows - 1) {
+        new_row = old_row + 1;
+    }
+    else if(strcmp(action_name, "left") == 0 && old_col > 0) {
+        new_col = old_col - 1;
+    }
+    // else invalid move -> dont move
+    state return_state;
+    return_state.row = new_row;
+    return_state.col = new_col;
+    return return_state;
+}
 
 // get the best path following the Q-table
 state *get_best_path(int **q_table[], int values[], int start_row, int start_col);
@@ -218,7 +228,6 @@ int main() {
     printf("\nTesting hyper parameters:\n%f, %f, %f, %f, %f\n", epsilon, discount_factor, learning_rate, width, height);
 
     // setting and testing actions
-    const char *actions[] = {"up", "right", "down", "left"};
     printf("Testing an action in actions array:\n%s\n", actions[0]);
 
     // testing state struct
@@ -254,6 +263,20 @@ int main() {
         start = get_rand_start(values, height, width);
         printf("valid start: (%d, %d)\n", start.row, start.col);
     }
+
+    // testing string compare stuff
+    char action_name[10];
+    strcpy(action_name, actions[0]);
+    printf("Checking action_name: %s\n", action_name);
+    int up_result = strcmp(action_name, "up");
+    int left_result = strcmp(action_name, "left");
+    printf("compare to up: %d\ncompare to left: %d\n", up_result, left_result);
+
+    // testing get_next_location
+    int temp_move = 3;
+    state next_loc = get_next_location(1, 1, width, height, temp_move);
+    printf("next_location from (1, 1) and move: %s (%d, %d)\n", actions[temp_move], next_loc.row, next_loc.col);
+
 
     free(q_table);
     return 0;
