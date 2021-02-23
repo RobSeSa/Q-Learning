@@ -97,7 +97,7 @@ int get_next_action(int q_table[], double epsilon, int row, int col) {
 }
 
 // get the next location. if invalid, don't move
-state get_next_location(int old_row, int old_col, int max_rows, int max_cols, int action_num) {
+state get_next_location(int old_row, int old_col, int action_num) {
     // check U, D, L, R
     int new_row = old_row;
     int new_col = old_col;
@@ -124,7 +124,32 @@ state get_next_location(int old_row, int old_col, int max_rows, int max_cols, in
 }
 
 // get the best path following the Q-table
-state *get_best_path(int **q_table[], int values[], int start_row, int start_col);
+state *get_best_path(int **q_table[], int values[], int start_row, int start_col) {
+    // return an array of states
+    state* path = (state *) malloc(100*sizeof(state));
+    int path_index = 0;
+    int max_path_length = 100;
+    state curr_state;
+    curr_state.row = start_row;
+    curr_state.col = start_col;
+    int action_num;
+    // keep appending while not terminal state
+    while(!is_terminal(values, curr_state)) {
+        // check bounds of path_index
+        if(path_index >= max_path_length) {
+            // allocate more memory and update max_path_length
+            max_path_length += 100;
+            path = (state *) realloc(path, max_path_length);
+        }
+        path[path_index] = curr_state;
+        action_num = get_next_action(q_table, 1, curr_state.row, curr_state.col);
+        curr_state = get_next_location(curr_state.row, curr_state.col, action_num);
+        path_index++;
+    }
+    path[path_index] = curr_state;
+    return path;
+}
+
 // def get_best_path(q_table, values, start_row, start_col):
 //     path = []
 //     curr_row, curr_col = start_row, start_col
@@ -274,7 +299,7 @@ int main() {
 
     // testing get_next_location
     int temp_move = 3;
-    state next_loc = get_next_location(1, 1, width, height, temp_move);
+    state next_loc = get_next_location(1, 1, temp_move);
     printf("next_location from (1, 1) and move: %s (%d, %d)\n", actions[temp_move], next_loc.row, next_loc.col);
 
 
