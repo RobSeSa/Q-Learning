@@ -1,6 +1,6 @@
 EXECBIN = run
 
-SOURCE  = ReadCSVExample1
+SOURCE  = Q_Learning
 
 all: $(EXECBIN) clean
 
@@ -9,4 +9,4 @@ $(EXECBIN): $(SOURCE).java
 	java $(SOURCE)
 
 clean:
-	rm -rf *.class
+	@rm -rf *.class
