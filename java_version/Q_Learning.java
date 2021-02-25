@@ -7,7 +7,7 @@ public class Q_Learning
 {  
     // Start of Q-Learning implementation
     // helper functions
-    private boolean is_terminal(int[][] values, int row, int col) {
+    private static boolean is_terminal(int[][] values, int row, int col) {
         int nonterminal_value = -1;
         if(values[row][col] == nonterminal_value) {
             return false;
@@ -84,9 +84,23 @@ public class Q_Learning
         // testing State.java
         State temp = new State(0, 1);
         System.out.println("temp = (" + temp.getRow() + ", " + temp.getCol() + ")");
+    
+        // test is_terminal
+        if(is_terminal(values, temp.getRow(), temp.getCol())) {
+            System.out.println("temp is terminal!");
+        }
+        else {
+            System.out.println("temp is not terminal!");
+        }
+
         temp.setRow(2);
         System.out.println("temp = (" + temp.getRow() + ", " + temp.getCol() + ")");
-    
 
+        if(is_terminal(values, temp.getRow(), temp.getCol())) {
+            System.out.println("temp is terminal!");
+        }
+        else {
+            System.out.println("temp is not terminal!");
+        }
     }  
 } 
