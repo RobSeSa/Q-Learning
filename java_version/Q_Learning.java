@@ -5,6 +5,18 @@ import java.util.*;
 
 public class Q_Learning
 {  
+    // Start of Q-Learning implementation
+    // helper functions
+    private boolean is_terminal(int[][] values, int row, int col) {
+        int nonterminal_value = -1;
+        if(values[row][col] == nonterminal_value) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
     public static void main(String[] args)   
     {  
         String line = "";  
@@ -65,5 +77,16 @@ public class Q_Learning
             }
             System.out.println();
         }
+
+        // testing actions global
+        System.out.println(Parameters.actions[0]);
+
+        // testing State.java
+        State temp = new State(0, 1);
+        System.out.println("temp = (" + temp.getRow() + ", " + temp.getCol() + ")");
+        temp.setRow(2);
+        System.out.println("temp = (" + temp.getRow() + ", " + temp.getCol() + ")");
+    
+
     }  
 } 
