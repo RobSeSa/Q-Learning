@@ -32,15 +32,15 @@ public class Q_Learning
     }
 
     // get the next action following an epsilon greedy choice
-    private static int get_next_action(int[][][] q_table, int row, int col) {
+    private static int get_next_action(int[][][] q_table, double epsilon, int row, int col) {
         Random rand = new Random();
         double eps_rand = rand.nextDouble();
-        System.out.println("eps_rand = " + eps_rand);
+        //System.out.println("eps_rand = " + eps_rand);
         int action_num, index;
         int max_index = -1;
         int max = -1;
         // take the greedy action
-        if(eps_rand < Parameters.EPSILON) {
+        if(eps_rand < epsilon) {
             // find the max value
             for(int i = 0; i < Parameters.num_actions; i++) {
                 if(q_table[row][col][i] > max) {
@@ -80,6 +80,33 @@ public class Q_Learning
         }
         State new_state = new State(new_row, new_col);
         return new_state;
+    }
+
+    // get bext path following Q-table
+    private static List<State> get_best_path(int[][][] q_table, int[][] values, int start_row, int start_col) {
+        List<State> path = new ArrayList<State>();
+        int curr_row = start_row, curr_col = start_col;
+        int action_num;
+        State temp;
+        // keep appending until terminal
+        while(!is_terminal(values, curr_row, curr_col)) {
+            temp = new State(curr_row, curr_col);
+            path.add(temp);
+            action_num = get_next_action(q_table, 1, curr_row, curr_col);
+            temp = get_next_location(curr_row, curr_col, action_num);
+            curr_row = temp.getRow();
+            curr_col = temp.getCol();
+        }
+        temp = new State(curr_row, curr_col);
+        path.add(temp);
+        return path;
+    }
+    
+    private static void printPath(int[][] values, List<State> path) {
+        for(int i=0; i<path.size() - 1; i++) {
+            System.out.print("(" + path.get(i).getRow() + ", " + path.get(i).getCol() + ") ");
+        }
+        System.out.println("(" + path.get(path.size()-1).getRow() + ", " + path.get(path.size()-1).getCol() + ") ");
     }
 
     // helper functions for the lols
@@ -192,7 +219,8 @@ public class Q_Learning
         // call get_next_action with this qtable
         int row=0, col=0;
         q_table[row][col][2] = 10000;
-        int action_num = get_next_action(q_table, row, col);
+        //int action_num = get_next_action(q_table, Parameters.EPSILON, row, col);
+        int action_num = get_next_action(q_table, 1, row, col);
         System.out.println("Testing get_next_action:");
         System.out.println("action_num from " + row + ", " + col + " = " + action_num + "("  + Parameters.actions[action_num] + ")");
         if(action_num == 2) {
@@ -212,5 +240,20 @@ public class Q_Learning
         else {
             printFail();
         }
+
+        // test get_best_path
+        List<State> path;
+        System.out.println("Testing get_best_path:");
+        start = get_rand_start(values);
+        for(int j = 0; j < 10; j++) {
+            System.out.println("start = (" + start.getRow() + ", " + start.getCol() + ") gives path:");
+            row = start.getRow();
+            col = start.getCol();
+            path = get_best_path(q_table, values, row, col);
+            printPath(values, path);
+
+            start = get_rand_start(values);
+        }
+        printPass();
     }  
 } 
