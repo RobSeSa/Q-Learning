@@ -35,7 +35,8 @@ public class Q_Learning
     private static int get_next_action(int[][][] q_table, double epsilon, int row, int col) {
         Random rand = new Random();
         double eps_rand = rand.nextDouble();
-        //System.out.println("eps_rand = " + eps_rand);
+        System.out.println("eps_rand = " + eps_rand);
+        System.out.println("eps= " + epsilon);
         int action_num, index;
         int max_index = -1;
         int max = -1;
@@ -49,10 +50,12 @@ public class Q_Learning
                 }
             }
             action_num = max_index;
+            System.out.println("Greedy action: " + action_num);
         }
         // take a random action
         else {
             action_num = rand.nextInt(4);
+            System.out.println("Non-greedy action: " + action_num);
         }
         if(action_num == -1) {
             // still unset so error
@@ -89,14 +92,17 @@ public class Q_Learning
         int action_num;
         State temp;
         // keep appending until terminal
+        System.out.println("Start while(!is_terminal)");
         while(!is_terminal(values, curr_row, curr_col)) {
             temp = new State(curr_row, curr_col);
+            System.out.println("State: (" + curr_row + ", " + curr_col + ")");
             path.add(temp);
             action_num = get_next_action(q_table, 1, curr_row, curr_col);
             temp = get_next_location(curr_row, curr_col, action_num);
             curr_row = temp.getRow();
             curr_col = temp.getCol();
         }
+        System.out.println("State: (" + curr_row + ", " + curr_col + ")");
         temp = new State(curr_row, curr_col);
         path.add(temp);
         return path;
@@ -176,7 +182,7 @@ public class Q_Learning
             {  
                 String[] tokens = line.split(splitBy);    // use comma as separator  
                 for(int i = 0; i < tokens.length; i++) {
-                    System.out.println("index: "+index+"; tokens["+i+"] = " + tokens[i]);
+                    //System.out.println("index: "+index+"; tokens["+i+"] = " + tokens[i]);
                     data.add(Double.parseDouble(tokens[i]));
                     index++;
                 }
@@ -194,14 +200,14 @@ public class Q_Learning
         Parameters.MAX_COLS = data.get(3).intValue();
         Parameters.MAX_ROWS = data.get(4).intValue();
 
-        System.out.println("Epsilon: " + Parameters.EPSILON);
-        System.out.println("max cols: " + Parameters.MAX_COLS);
+        //System.out.println("Epsilon: " + Parameters.EPSILON);
+        //System.out.println("max cols: " + Parameters.MAX_COLS);
 
         // remove first 5 parameters saved above
         for(int i = 0; i < 5; i++) {
             data.remove(0);
         }
-        System.out.println("values data:" + data);
+        //System.out.println("values data:" + data);
 
         // populate the values matrix of type int
         int[][] values = new int[Parameters.MAX_ROWS][Parameters.MAX_COLS];
@@ -213,43 +219,7 @@ public class Q_Learning
             }
         }
 
-        // testing values array
-        System.out.println("Printing values matrix");
-        for(int row = 0; row < Parameters.MAX_ROWS; row++) {
-            for(int col = 0; col < Parameters.MAX_COLS; col++) {
-                System.out.print(values[row][col] + " ");
-            }
-            System.out.println();
-        }
-
-        // testing actions global
-        System.out.println(Parameters.actions[0]);
-
-        // testing State.java
-        State temp = new State(0, 1);
-        System.out.println("temp = (" + temp.getRow() + ", " + temp.getCol() + ")");
-        temp.setRow(2);
-        System.out.println("temp = (" + temp.getRow() + ", " + temp.getCol() + ")");
-    
-        // test is_terminal
-        System.out.println("Testing is_terminal:");
-        if(is_terminal(values, temp.getRow(), temp.getCol())) {
-            System.out.println("temp is terminal!");
-        }
-        else {
-            System.out.println("temp is not terminal!");
-        }
-
-        // test get_rand_start
-        System.out.println("Testing get_rand_start:");
-        State start = get_rand_start(values);
-        for(int i = 0; i < 10; i++) {
-            System.out.println("start = (" + start.getRow() + ", " + start.getCol() + ")");
-            start = get_rand_start(values);
-        }
-
-
-        // test get_next_action; need a qtable to test
+        // initialize q_table to 0
         int[][][] q_table = new int[Parameters.MAX_ROWS][Parameters.MAX_COLS][Parameters.num_actions];
         for(int row = 0; row < Parameters.MAX_ROWS; row++) {
             for(int col = 0; col < Parameters.MAX_COLS; col++) {
@@ -259,61 +229,16 @@ public class Q_Learning
             }
         }
 
-        // call get_next_action with this qtable
-        int row=0, col=0;
-        q_table[row][col][2] = 10000;
-        //int action_num = get_next_action(q_table, Parameters.EPSILON, row, col);
-        int action_num = get_next_action(q_table, 1, row, col);
-        System.out.println("Testing get_next_action:");
-        System.out.println("action_num from " + row + ", " + col + " = " + action_num + "("  + Parameters.actions[action_num] + ")");
-        if(action_num == 2) {
-            printPass();
-        }
-        else {
-            printFail();
-        }
-
-        // test get_next_location
-        /*State next_loc = get_next_location(row, col, action_num);
-        System.out.println("Next location from (" + row + ", " + col + ") taking action " + Parameters.actions[action_num] +
-                           " is (" + next_loc.getRow() + ", " + next_loc.getCol() + ")");
-        if(next_loc.getRow() == 1 && next_loc.getCol() == 0) {
-            printPass();
-        }
-        else {
-            printFail();
-        }*/
-
-        // test get_best_path
-        /*List<State> path;
-        System.out.println("Testing get_best_path:");
-        start = get_rand_start(values);
-        for(int j = 0; j < 10; j++) {
-            System.out.println("start = (" + start.getRow() + ", " + start.getCol() + ") gives path:");
-            row = start.getRow();
-            col = start.getCol();
-            path = get_best_path(q_table, values, row, col);
-            printPath(values, path);
-
-            start = get_rand_start(values);
-        }
-        printPass();
-        */
-
-
         // test actual training function
-        System.out.println("Testing q_training:");
+        System.out.println("Starting q_training");
         q_training(q_table, values);
-        System.out.println("Done training q_table");
+        System.out.println("Done q_training");
+        System.out.println("Start get best path");
         List<State> path = get_best_path(q_table, values, 3, 9);
+        System.out.println("Start print path");
         printPath(values, path);
+        System.out.println("Start print path cost");
         int cost = get_path_cost(values, path);
         System.out.println(cost);
-        if(cost == 93) {
-            printPass();
-        }
-        else{
-            printFail();
-        }
     }  
 } 

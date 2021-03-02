@@ -70,20 +70,23 @@ def premade_maze():
     
     return rewards
 
+
 # premade maze has size 11
 premade = premade_maze()
-#print("premade[5][5] =", premade[5][5])
-#for row in range(height):
-#        for col in range(width):
-#            parameters.append(premade[row][col])
+
+print("premade[5][5] =", premade[5][5])
+for row in range(height):
+        for col in range(width):
+            parameters.append(premade[row][col])
 
 #gen_maze(parameters)
 
+# csv one line
 # store in a csv
 #data = np.asarray(parameters)
-    
 #data.tofile('matrix_data.csv',sep=',')
 
+# csv multiple lines
 with open('matrix_data.csv', 'w') as csv_file:
     csv_writer = csv.writer(csv_file, delimiter=',')
     csv_writer.writerow(parameters)

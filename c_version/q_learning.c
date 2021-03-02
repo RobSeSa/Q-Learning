@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define NUM_ACTIONS 4
 const char *actions[] = {"up", "right", "down", "left"};
@@ -232,18 +233,20 @@ int main() {
     int index = 0;
     // for saving the tokens in the csv file
     char *ptr;
-    printf("Printing contents of matrx_data.csv\n");
+    //printf("Printing contents of matrx_data.csv\n");
     while(fgets(buffer, sizeof(buffer), matrix_data)) {
         char *token;
 
         temp = 0;
         token = strtok(buffer, ",");
         while(token != NULL) {
+            /*
             if(temp != 0) {
                 printf(",");
             }
             temp += 1;
             printf("%s", token);
+            */
 
             // first row so add individual parameters
             if(row == 0) {
@@ -290,13 +293,17 @@ int main() {
     }
 
     // testing hyper parameters
-    printf("\nTesting hyper parameters:\n%f, %f, %f, %f, %f\n", epsilon, discount_factor, learning_rate, width, height);
+    //printf("\nTesting hyper parameters:\n%f, %f, %f, %f, %f\n", epsilon, discount_factor, learning_rate, width, height);
 
     // initialize 3D q_table: dim = (height, width, NUM_ACTIONS)
     size_t nbytes = height * width * NUM_ACTIONS * sizeof(int);
     // use flat 1D array for q_table implementation
     int *q_table = (int*) malloc(nbytes);
     memset(q_table, 0, nbytes);
+
+    // record the time from before q_training to immediately after
+    //clock_t begin = clock();
+
 
     // start the actual training
     q_training(q_table, values, epsilon, discount_factor, learning_rate);
@@ -305,48 +312,9 @@ int main() {
     int cost = get_path_cost(values, best_path);
     printf("%d\n", cost);
 
-    /*
-    // test get_next_action()
-    int action_num = get_next_action(q_table, epsilon, 0, 0);
-    printf("action_num = %d\n", action_num);
-    q_table[convert_index(3, 0, 0, 1)] = 10;
-    action_num = get_next_action(q_table, 1, 0, 0);
-    if(action_num == 1) {
-        printf("get_next_action test passed\n");
-    }
-    else {
-        printf("get_next_action test failed\n");
-    }
-
-    // testing get_rand_start
-    state start;
-    for(int i = 0; i < 10; i++) {
-        start = get_rand_start(values, height, width);
-        printf("valid start: (%d, %d)\n", start.row, start.col);
-    }
-
-    // testing string compare stuff
-    char action_name[10];
-    strcpy(action_name, actions[0]);
-    printf("Checking action_name: %s\n", action_name);
-    int up_result = strcmp(action_name, "up");
-    int left_result = strcmp(action_name, "left");
-    printf("compare to up: %d\ncompare to left: %d\n", up_result, left_result);
-
-    // testing get_next_location
-    int temp_move = 3;
-    state next_loc = get_next_location(1, 1, temp_move);
-    printf("next_location from (1, 1) and move: %s (%d, %d)\n", actions[temp_move], next_loc.row, next_loc.col);
-
-    // testing get_best_path
-    state *best_path = get_best_path(q_table, values, 9, 5);
-    printf("Best path: ");
-    print_path(values, best_path);
-    int cost = get_path_cost(values, best_path);
-    printf("Cost of best path: %d\n", cost);
-    free(best_path);
-    */
-
+    //clock_t end = clock();
+    //double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    //printf("Time spent: %f\n", time_spent);
 
     free(q_table);
     return 0;
