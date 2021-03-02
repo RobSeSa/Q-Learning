@@ -108,6 +108,49 @@ public class Q_Learning
         }
         System.out.println("(" + path.get(path.size()-1).getRow() + ", " + path.get(path.size()-1).getCol() + ") ");
     }
+    
+    private static int get_path_cost(int[][] values, List<State> path) {
+        int cost = 0;
+        State curr;
+        for(int i = 0; i < path.size(); i++) {
+            curr = path.get(i);
+            cost += values[curr.getRow()][curr.getCol()];
+        }
+        return cost;
+    }
+
+    // the actual updating of the q_table
+    private static void q_training(int[][][] q_table, int[][] values) {
+        State curr_state, old_state;
+        int action_num, reward, old_q_value, temp_diff, new_q_value;
+        int index, max; 
+        for(int episode = 0; episode < 1000; episode++) {
+            curr_state = get_rand_start(values);
+            // take actions from this random start state until we terminate 
+            while(!is_terminal(values, curr_state.getRow(), curr_state.getCol())) {
+                // get an action
+                action_num = get_next_action(q_table, Parameters.EPSILON, curr_state.getRow(), curr_state.getCol());
+                old_state = curr_state;
+                // perform the action
+                curr_state = get_next_location(curr_state.getRow(), curr_state.getCol(), action_num);
+                // receive the reward
+                reward = values[curr_state.getRow()][curr_state.getCol()];
+                // calculate temporal difference
+                old_q_value = q_table[old_state.getRow()][old_state.getCol()][action_num];
+                // find the max value
+                max = -100000;
+                for(int i = 0; i < Parameters.num_actions; i++) {
+                    if(q_table[curr_state.getRow()][curr_state.getCol()][i] > max) {
+                        max = q_table[curr_state.getRow()][curr_state.getCol()][i];
+                    }
+                }
+                temp_diff = (int) (reward + (Parameters.DISCOUNT_FACTOR * max) - old_q_value);
+                // update Q-value
+                new_q_value = old_q_value + (int) (Parameters.LEARNING_RATE * temp_diff);
+                q_table[old_state.getRow()][old_state.getCol()][action_num] = new_q_value;
+            }
+        }
+    }
 
     // helper functions for the lols
     private static void printPass() {
@@ -231,7 +274,7 @@ public class Q_Learning
         }
 
         // test get_next_location
-        State next_loc = get_next_location(row, col, action_num);
+        /*State next_loc = get_next_location(row, col, action_num);
         System.out.println("Next location from (" + row + ", " + col + ") taking action " + Parameters.actions[action_num] +
                            " is (" + next_loc.getRow() + ", " + next_loc.getCol() + ")");
         if(next_loc.getRow() == 1 && next_loc.getCol() == 0) {
@@ -239,10 +282,10 @@ public class Q_Learning
         }
         else {
             printFail();
-        }
+        }*/
 
         // test get_best_path
-        List<State> path;
+        /*List<State> path;
         System.out.println("Testing get_best_path:");
         start = get_rand_start(values);
         for(int j = 0; j < 10; j++) {
@@ -255,5 +298,22 @@ public class Q_Learning
             start = get_rand_start(values);
         }
         printPass();
+        */
+
+
+        // test actual training function
+        System.out.println("Testing q_training:");
+        q_training(q_table, values);
+        System.out.println("Done training q_table");
+        List<State> path = get_best_path(q_table, values, 3, 9);
+        printPath(values, path);
+        int cost = get_path_cost(values, path);
+        System.out.println(cost);
+        if(cost == 93) {
+            printPass();
+        }
+        else{
+            printFail();
+        }
     }  
 } 
