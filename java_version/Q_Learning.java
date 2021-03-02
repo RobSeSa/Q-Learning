@@ -39,6 +39,7 @@ public class Q_Learning
         int action_num, index;
         int max_index = -1;
         int max = -1;
+        // take the greedy action
         if(eps_rand < Parameters.EPSILON) {
             // find the max value
             for(int i = 0; i < Parameters.num_actions; i++) {
@@ -49,15 +50,45 @@ public class Q_Learning
             }
             action_num = max_index;
         }
+        // take a random action
         else {
             action_num = rand.nextInt(4);
         }
         if(action_num == -1) {
             // still unset so error
-            System.out.error("Error getting next action");
+            System.out.println("Error getting next action");
             return -1;
         }
         return action_num;
+    }
+
+    // get the next location if its valid
+    private static State get_next_location(int old_row, int old_col, int action_num) {
+        int new_row = old_row, new_col = old_col;
+        String action_name = Parameters.actions[action_num];
+        if(action_name.compareTo("up") == 0 && old_row > 0) {
+            new_row = old_row - 1;
+        }
+        else if(action_name.compareTo("right") == 0 && old_col < Parameters.MAX_COLS - 1) {
+            new_col = old_col + 1;
+        }
+        else if(action_name.compareTo("down") == 0 && old_row < Parameters.MAX_ROWS - 1) {
+            new_row = old_row + 1;
+        }
+        else if(action_name.compareTo("left") == 0 && old_col > 0) {
+            new_col = old_col - 1;
+        }
+        State new_state = new State(new_row, new_col);
+        return new_state;
+    }
+
+    // helper functions for the lols
+    private static void printPass() {
+        System.out.println("Test passed!! Great job :)");
+    }
+
+    private static void printFail() {
+        System.out.println("You notice something failed!! Great job :)");
     }
 
     public static void main(String[] args)   
@@ -145,6 +176,41 @@ public class Q_Learning
         for(int i = 0; i < 10; i++) {
             System.out.println("start = (" + start.getRow() + ", " + start.getCol() + ")");
             start = get_rand_start(values);
+        }
+
+
+        // test get_next_action; need a qtable to test
+        int[][][] q_table = new int[Parameters.MAX_ROWS][Parameters.MAX_COLS][Parameters.num_actions];
+        for(int row = 0; row < Parameters.MAX_ROWS; row++) {
+            for(int col = 0; col < Parameters.MAX_COLS; col++) {
+                for(int action_index = 0; action_index < Parameters.num_actions; action_index++) {
+                    q_table[row][col][action_index] = 0;
+                }
+            }
+        }
+
+        // call get_next_action with this qtable
+        int row=0, col=0;
+        q_table[row][col][2] = 10000;
+        int action_num = get_next_action(q_table, row, col);
+        System.out.println("Testing get_next_action:");
+        System.out.println("action_num from " + row + ", " + col + " = " + action_num + "("  + Parameters.actions[action_num] + ")");
+        if(action_num == 2) {
+            printPass();
+        }
+        else {
+            printFail();
+        }
+
+        // test get_next_location
+        State next_loc = get_next_location(row, col, action_num);
+        System.out.println("Next location from (" + row + ", " + col + ") taking action " + Parameters.actions[action_num] +
+                           " is (" + next_loc.getRow() + ", " + next_loc.getCol() + ")");
+        if(next_loc.getRow() == 1 && next_loc.getCol() == 0) {
+            printPass();
+        }
+        else {
+            printFail();
         }
     }  
 } 
