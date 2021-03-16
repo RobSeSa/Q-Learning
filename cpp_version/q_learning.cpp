@@ -14,11 +14,39 @@ using namespace std;
 double EPSILON;
 double DISCOUNT_FACTOR;
 double LEARNING_RATE;
-int MAX_ROWS;
-int MAX_COLS;
+int MAX_ROWS = 11; // default values
+int MAX_COLS = 11;
 
 string actions[4] = {"up", "right", "down", "left"};
 int num_actions = 4;
+
+struct State {
+    int row;
+    int col;
+};
+
+// helper functions
+// check if given row/col is a terminal state
+bool is_terminal(int **values, int row, int col) {
+    int nonterminal_value = -1;
+    if (values[row][col] == nonterminal_value) {
+        return false;
+    }
+    return true;
+}
+
+// get a viable random start tuple
+State get_rand_start(int **values){
+    int row = rand() % MAX_ROWS;
+    int col = rand() % MAX_COLS;
+    while(is_terminal(values, row, col)) {
+        // find new start
+        row = rand() % MAX_ROWS;
+        col = rand() % MAX_COLS;
+    }
+    struct State state = {row, col};
+    return state;
+}
  
 // Dynamically Allocate Memory for 3D Array in C++
 int main()
@@ -74,6 +102,7 @@ int main()
         //cout << "\n";
     }
 
+    // testing CSV reading
     cout << "Printing contents of values matrix!\n";
     for (int row = 0; row < MAX_ROWS; row++) {
         for (int col = 0; col < MAX_COLS; col++) {
@@ -84,6 +113,20 @@ int main()
         }
         cout << "\n";
     }
+
+    // testing getrandstart
+    State start_state = get_rand_start(values);
+    cout << "Start state: (" << start_state.row << ", "
+                             << start_state.col << ")\n";
+    start_state = get_rand_start(values);
+    cout << "Start state: (" << start_state.row << ", "
+                             << start_state.col << ")\n";
+    start_state = get_rand_start(values);
+    cout << "Start state: (" << start_state.row << ", "
+                             << start_state.col << ")\n";
+
+
+
 
     // deallocate memory
     for (int i = 0; i < MAX_ROWS; i++)
