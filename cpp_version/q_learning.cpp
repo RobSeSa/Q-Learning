@@ -25,6 +25,9 @@ struct State {
     int col;
 };
 
+// create list of States
+typedef vector<State> State_list;
+
 // helper functions
 // check if given row/col is a terminal state
 bool is_terminal(int **values, int row, int col) {
@@ -49,7 +52,7 @@ State get_rand_start(int **values){
 }
 
 // get the next action following an espilon greedy choice
-int get_next_action(int ***q_table, int row, int col) {
+int get_next_action(int ***q_table, int epsilon, int row, int col) {
     int action_num = -1;
     int max_index = -1;
     int index = -1;
@@ -58,7 +61,7 @@ int get_next_action(int ***q_table, int row, int col) {
     float rand_val = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     //cout << "rand_val: " << rand_val << "\n";
     // take the greedy action
-    if(rand_val < EPSILON) {
+    if(rand_val < epsilon) {
         for(int i = 0; i < NUM_ACTIONS; i++) {
             // find the max value
             if(q_table[row][col][i] > max) {
@@ -104,6 +107,33 @@ State get_next_location(int old_row, int old_col, int action_num) {
     return return_state;
 }
 
+// return a list of States for the best path in the q_table
+State_list get_best_path(int ***q_table, int **values, int start_row, int start_col) {
+    State_list path;
+    int curr_row = start_row;
+    int curr_col = start_col;
+    int path_index = 0;
+    int action_num;
+    State next_state;
+    cout << "get_best_path():\n";
+    // continue until terminal
+    while(!is_terminal(values, curr_row, curr_col)) {
+        cout << "Current state: (" << curr_row << ", " << curr_col << ")\n";
+        path.push_back(State());
+        path[path_index].row = curr_row;
+        path[path_index].col = curr_col;
+        path_index++;
+        // set epsilon = 1 to take greedy action
+        action_num = get_next_action(q_table, 1, curr_row, curr_col);
+        next_state = get_next_location(curr_row, curr_col, action_num);
+        curr_row = next_state.row;
+        curr_col = next_state.col;
+    }
+    path.push_back(State());
+    path[path_index].row = curr_row;
+    path[path_index].col = curr_col;
+    return path;
+}
  
 // Dynamically Allocate Memory for 3D Array in C++
 int main()
@@ -189,7 +219,7 @@ int main()
     }
 
     // testing get_next_action
-    int next_action = get_next_action(q_table, 0, 0);
+    int next_action = get_next_action(q_table, EPSILON, 0, 0);
     cout << "next action: " << next_action << "\n";
 
     // testing get_next_location
@@ -200,6 +230,13 @@ int main()
     cout << "Next state: (" << next_state.row << ", "
                             << next_state.col << ")\n";
 
+    // testing get_best_path
+    //State_list best_path = get_best_path(q_table, values, 0, 0);
+    State_list best_path = get_best_path(q_table, values, 2, 1);
+    for (State_list::const_iterator i = best_path.begin(); i != best_path.end(); ++i) {
+        cout << "best_path: (" << i->row << ", "
+                               << i->col << ")\n";
+    }
 
 
 
