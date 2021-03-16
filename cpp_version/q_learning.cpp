@@ -134,6 +134,27 @@ State_list get_best_path(int ***q_table, int **values, int start_row, int start_
     path[path_index].col = curr_col;
     return path;
 }
+
+// sum path cost using values array
+int get_path_cost(int **values, State_list path) {
+    int cost = 0;
+    for (State_list::const_iterator i = path.begin(); i != path.end(); ++i) {
+        //cout << "path: (" << i->row << ", "
+        //                  << i->col << ")\n";
+        //cout << "cost: " << values[i->row][i->col] << "\n";
+        cost += values[i->row][i->col];
+    }
+    return cost;
+}
+
+
+// helper function from printing the path format
+void print_path(State_list path) {
+    for (State_list::const_iterator i = path.begin(); i != path.end(); ++i) {
+        cout << "(" << i->row << ", " << i->col << ") ";
+    }
+    cout << "\n";
+}
  
 // Dynamically Allocate Memory for 3D Array in C++
 int main()
@@ -233,10 +254,15 @@ int main()
     // testing get_best_path
     //State_list best_path = get_best_path(q_table, values, 0, 0);
     State_list best_path = get_best_path(q_table, values, 2, 1);
-    for (State_list::const_iterator i = best_path.begin(); i != best_path.end(); ++i) {
-        cout << "best_path: (" << i->row << ", "
-                               << i->col << ")\n";
-    }
+    print_path(best_path);
+
+    // testing get_path_cost
+    int cost = get_path_cost(values, best_path);
+    cout << "Best path cost: " << cost << "\n";
+
+    // next step
+    // q_training();
+
 
 
 
