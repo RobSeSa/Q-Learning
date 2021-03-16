@@ -155,6 +155,33 @@ void print_path(State_list path) {
     }
     cout << "\n";
 }
+
+// training function
+void q_training(int ***q_table, int **values) {
+    State curr_state, old_state;
+    int action_num, reward, old_q_value, temp_diff, new_q_value;
+    int index, max; 
+    for(int episode = 0; episode < 1000; episode++) {
+        curr_state = get_rand_start(values);
+        while(!is_terminal(values, curr_state.row, curr_state.col)) {
+            action_num = get_next_action(q_table, EPSILON, curr_state.row, curr_state.col);
+            old_state.row = curr_state.row;
+            old_state.col = curr_state.col;
+            curr_state = get_next_location(curr_state.row, curr_state.col, action_num);
+            reward = values[old_state.row][old_state.col];
+            old_q_value = q_table[old_state.row][old_state.col][action_num];
+            max = -100000;
+            for (int i = 0 ; i < NUM_ACTIONS; i++) {
+                if(q_table[curr_state.row][curr_state.col][i] > max) {
+                    max = q_table[curr_state.row][curr_state.col][i];
+                }
+            }
+            temp_diff = reward + (DISCOUNT_FACTOR * max) - old_q_value;
+            new_q_value = old_q_value + (LEARNING_RATE * temp_diff);
+            q_table[old_state.row][old_state.col][action_num] = new_q_value;
+        }
+    }
+}
  
 // Dynamically Allocate Memory for 3D Array in C++
 int main()
@@ -253,15 +280,19 @@ int main()
 
     // testing get_best_path
     //State_list best_path = get_best_path(q_table, values, 0, 0);
-    State_list best_path = get_best_path(q_table, values, 2, 1);
-    print_path(best_path);
+    //State_list best_path = get_best_path(q_table, values, 2, 1);
+    //print_path(best_path);
 
     // testing get_path_cost
+    //int cost = get_path_cost(values, best_path);
+    //cout << "Best path cost: " << cost << "\n";
+
+    // call training function
+    q_training(q_table, values);
+    State_list best_path = get_best_path(q_table, values, 3, 9);
+    print_path(best_path);
     int cost = get_path_cost(values, best_path);
     cout << "Best path cost: " << cost << "\n";
-
-    // next step
-    // q_training();
 
 
 
