@@ -7,6 +7,7 @@
 #include <sstream> // string stream
 #include <vector>
 #include <fstream>
+#include <math.h>
 
 using namespace std;
 
@@ -52,14 +53,14 @@ State get_rand_start(int **values){
 }
 
 // get the next action following an espilon greedy choice
-int get_next_action(int ***q_table, int epsilon, int row, int col) {
+int get_next_action(int ***q_table, double epsilon, int row, int col) {
     int action_num = -1;
     int max_index = -1;
     int index = -1;
-    int max = -1;
+    int max = -10000;
 
     float rand_val = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    //cout << "rand_val: " << rand_val << "\n";
+    cout << "get_next_action(): rand_val: " << rand_val << "\n";
     // take the greedy action
     if(rand_val < epsilon) {
         for(int i = 0; i < NUM_ACTIONS; i++) {
@@ -71,14 +72,16 @@ int get_next_action(int ***q_table, int epsilon, int row, int col) {
         }
         // save the index of the max value as the best action
         action_num = max_index;
+        cout << "Taking greedy action: " << action_num << "\n";
     }
     // take a random action
     else {
         action_num = rand() % 4;
+        cout << "Taking random action: " << action_num << "\n";
     }
     if(action_num == -1) {
         // still unset so error
-        cerr << "action_num still unset: error in get_next_action()\n";
+        cout << "action_num still unset: error in get_next_action()\n";
         return -1;
     }
     //cout << "returning action_num: " << action_num << "\n";
@@ -160,13 +163,16 @@ void print_path(State_list path) {
 void q_training(int ***q_table, int **values) {
     State curr_state, old_state;
     int action_num, reward, old_q_value;
-    double temp_diff, new_q_value;
+    float temp_diff, new_q_value;
     int index, max; 
     for(int episode = 0; episode < 1000; episode++) {
+        cout << "===================================\n";
         cout << "q_training episode " << episode << ":\n";
+        cout << "===================================\n";
         curr_state = get_rand_start(values);
         // take actions from this random start state until we terminate 
         while(!is_terminal(values, curr_state.row, curr_state.col)) {
+            cout << "curr_state: (" << curr_state.row << ", " << curr_state.col << ")\n";
             // get an action
             action_num = get_next_action(q_table, EPSILON, curr_state.row, curr_state.col);
             // perform the action
@@ -174,7 +180,7 @@ void q_training(int ***q_table, int **values) {
             old_state.col = curr_state.col;
             curr_state = get_next_location(curr_state.row, curr_state.col, action_num);
             // receive the reward
-            reward = values[old_state.row][old_state.col];
+            reward = values[curr_state.row][curr_state.col];
             cout << "reward: " << reward << "\n";
             // calculate temporal difference
             old_q_value = q_table[old_state.row][old_state.col][action_num];
@@ -188,12 +194,14 @@ void q_training(int ***q_table, int **values) {
             }
             cout << "max: " << max << "\n";
             temp_diff = reward + (DISCOUNT_FACTOR * max) - old_q_value;
-            cout << "temporal difference: " << temp_diff << "\n";
+            cout << "temporal difference: " << temp_diff << " = " << reward << " + (" << DISCOUNT_FACTOR
+                 << " * " << max << ") - " << old_q_value << "\n";
             // update Q-value
             new_q_value = old_q_value + (LEARNING_RATE * temp_diff);
             cout << "newqvalue: " << new_q_value << "\n";
-            q_table[old_state.row][old_state.col][action_num] = new_q_value;
+            q_table[old_state.row][old_state.col][action_num] = round(new_q_value);
             cout << "updating q_table value to: " << new_q_value << "\n";
+            cout << q_table[old_state.row][old_state.col][action_num] << " actually stored\n\n";
         }
     }
 }
@@ -303,7 +311,7 @@ int main()
     //cout << "Best path cost: " << cost << "\n";
 
     // call training function
-    q_training(q_table, values);
+    //q_training(q_table, values);
     State_list best_path = get_best_path(q_table, values, 3, 9);
     print_path(best_path);
     int cost = get_path_cost(values, best_path);
@@ -313,7 +321,9 @@ int main()
     // testing q_training (check contents of q_table)
     cout << "Printing q_table:\n";
     for (int i = 0; i < MAX_ROWS; i++){
+        cout << "row " << i << ":\n";
         for (int j = 0; j < MAX_COLS; j++){
+            cout << "col " << j << ": ";
             for (int k = 0; k < NUM_ACTIONS; k++){
                 cout << q_table[i][j][k] << ", ";
             }
@@ -321,6 +331,23 @@ int main()
         }
         cout << "\n";
     }
+
+    cout << "Printing contents of values matrix!\n";
+    for (int row = 0; row < MAX_ROWS; row++) {
+        for (int col = 0; col < MAX_COLS; col++) {
+            cout << values[row][col];
+            if (col < MAX_COLS - 1) {
+                cout << ",";
+            }
+        }
+        cout << "\n";
+    }
+
+    // testing type conversion
+    float x = -0.9;
+    int y = x;
+    cout << "x = " << x << "\n";
+    cout << "y = " << y << "\n";
 
 
 
