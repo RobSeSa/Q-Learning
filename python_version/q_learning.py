@@ -1,27 +1,21 @@
-# %%
+from IPython import get_ipython
 # main script for reading the matrix csv file and learning off of the given matrix
 # directly from https://realpython.com/python-csv/#reading-csv-files-with-csv
 import csv
 import numpy as np
 
-
-# %%
-with open('matrix_data.csv') as csv_file:
+# reading the csv data
+data = []
+with open('../matrix_data.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
-    data = list(csv_reader)
-    data = data[0]
     line_count = 0
     for row in csv_reader:
-        if line_count == 0:
-            #print(f'Column names are {", ".join(row)}')
-            line_count += 1
-        else:
-            #print(f'\t{row[0]} works in the {row[1]} department, and was born in {row[2]}.')
-            line_count += 1
-    #print(f'Processed {line_count} lines.')
+        #print(row)
+        for col in row:
+            data.append(col)
+    print(f'Processed {line_count} lines.')
 
 
-# %%
 epsilon = float(data[0])
 discount_factor = float(data[1])
 learning_rate = float(data[2])
@@ -29,18 +23,14 @@ width = int(float(data[3]))
 height = int(float(data[4]))
 
 
-# %%
 # printing hyper parameters
-'''
 print("Epsilon:", epsilon)
 print("Discount factor:", discount_factor)
 print("Learning rate:", learning_rate)
 print("Rows:", height)
 print("Columns:", width)
-'''
 
 
-# %%
 values = np.zeros((height, width))
 
 index = 5 # start at index 5 to skip parameters
@@ -50,15 +40,13 @@ for row in range(height):
         values[row][col] = data[index]
         index += 1
 
-#print(values)
+print(values)
 
 
-# %%
 actions = ['up', 'right', 'down', 'left']
 num_actions = 4
 
 
-# %%
 # Start of Q-Learning implementation
 # define helper functions
 
@@ -126,16 +114,11 @@ def get_path_cost(values, path):
         cost += values[row][col]
     return cost
 
-
-# %%
 # define Q-table
 q_table = np.zeros((height, width, num_actions))
 
-
-# %%
 # do the training
 # from example cited in README: https://www.youtube.com/watch?v=iKdlKYG78j4&t=158s
-
 for episode in range(1000):
     row, col = get_rand_start(values, height, width)
     # take actions from this random start state until we terminate
@@ -155,29 +138,7 @@ for episode in range(1000):
         q_table[old_row][old_col][action_num] = new_q_value
 
 
-# %%
 path = get_best_path(q_table, values, 3, 9)
 print(path)
 cost = get_path_cost(values, path)
 print(cost)
-#path.reverse()
-#print(path)
-
-
-### plot findings
-runs = [1, 2, 3, 4, 5]
-c_version = [0.008, 0.007, 0.008, 0.008, 0.007]
-p_version = [0.424, 0.291, 0.295, 0.280, 0.287]
-j_version = [0.06, 0.07, 0.13, 0.06, 0.07]
-
-import matplotlib
-from matplotlib import pyplot as plt
-
-plt.plot(runs, c_version, color='r', label='C')
-plt.plot(runs, p_version, color='g', label='Python')
-plt.plot(runs, j_version, color='b', label='Java')
-plt.xlabel("Runs")
-plt.ylabel("Total Execution Time (s)")
-plt.legend()
-plt.grid()
-plt.show()
