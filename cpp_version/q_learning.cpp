@@ -159,26 +159,41 @@ void print_path(State_list path) {
 // training function
 void q_training(int ***q_table, int **values) {
     State curr_state, old_state;
-    int action_num, reward, old_q_value, temp_diff, new_q_value;
+    int action_num, reward, old_q_value;
+    double temp_diff, new_q_value;
     int index, max; 
     for(int episode = 0; episode < 1000; episode++) {
+        cout << "q_training episode " << episode << ":\n";
         curr_state = get_rand_start(values);
+        // take actions from this random start state until we terminate 
         while(!is_terminal(values, curr_state.row, curr_state.col)) {
+            // get an action
             action_num = get_next_action(q_table, EPSILON, curr_state.row, curr_state.col);
+            // perform the action
             old_state.row = curr_state.row;
             old_state.col = curr_state.col;
             curr_state = get_next_location(curr_state.row, curr_state.col, action_num);
+            // receive the reward
             reward = values[old_state.row][old_state.col];
+            cout << "reward: " << reward << "\n";
+            // calculate temporal difference
             old_q_value = q_table[old_state.row][old_state.col][action_num];
+            cout << "oldqvalue: " << old_q_value<< "\n";
+            // find the max value
             max = -100000;
             for (int i = 0 ; i < NUM_ACTIONS; i++) {
                 if(q_table[curr_state.row][curr_state.col][i] > max) {
                     max = q_table[curr_state.row][curr_state.col][i];
                 }
             }
+            cout << "max: " << max << "\n";
             temp_diff = reward + (DISCOUNT_FACTOR * max) - old_q_value;
+            cout << "temporal difference: " << temp_diff << "\n";
+            // update Q-value
             new_q_value = old_q_value + (LEARNING_RATE * temp_diff);
+            cout << "newqvalue: " << new_q_value << "\n";
             q_table[old_state.row][old_state.col][action_num] = new_q_value;
+            cout << "updating q_table value to: " << new_q_value << "\n";
         }
     }
 }
@@ -257,13 +272,13 @@ int main()
     // create q_table
     int ***q_table= new int**[MAX_ROWS];
     for (int i = 0; i < MAX_ROWS; i++){
-       q_table[i] = new int*[MAX_COLS];
-       for (int j = 0; j < MAX_COLS; j++){
-           q_table[i][j] = new int[NUM_ACTIONS];
-           for (int k = 0; k < NUM_ACTIONS; k++){
-              q_table[i][j][k] = 0;
-           }
-       }
+        q_table[i] = new int*[MAX_COLS];
+        for (int j = 0; j < MAX_COLS; j++){
+            q_table[i][j] = new int[NUM_ACTIONS];
+            for (int k = 0; k < NUM_ACTIONS; k++){
+                q_table[i][j][k] = 0;
+            }
+        }
     }
 
     // testing get_next_action
@@ -295,6 +310,17 @@ int main()
     cout << "Best path cost: " << cost << "\n";
 
 
+    // testing q_training (check contents of q_table)
+    cout << "Printing q_table:\n";
+    for (int i = 0; i < MAX_ROWS; i++){
+        for (int j = 0; j < MAX_COLS; j++){
+            for (int k = 0; k < NUM_ACTIONS; k++){
+                cout << q_table[i][j][k] << ", ";
+            }
+            cout << "\n";
+        }
+        cout << "\n";
+    }
 
 
 
