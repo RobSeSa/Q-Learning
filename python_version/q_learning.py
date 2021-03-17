@@ -13,8 +13,6 @@ with open('../matrix_data.csv') as csv_file:
         #print(row)
         for col in row:
             data.append(col)
-    print(f'Processed {line_count} lines.')
-
 
 epsilon = float(data[0])
 discount_factor = float(data[1])
@@ -22,14 +20,12 @@ learning_rate = float(data[2])
 width = int(float(data[3]))
 height = int(float(data[4]))
 
-
 # printing hyper parameters
-print("Epsilon:", epsilon)
-print("Discount factor:", discount_factor)
-print("Learning rate:", learning_rate)
-print("Rows:", height)
-print("Columns:", width)
-
+#print("Epsilon:", epsilon)
+#print("Discount factor:", discount_factor)
+#print("Learning rate:", learning_rate)
+#print("Rows:", height)
+#print("Columns:", width)
 
 values = np.zeros((height, width))
 
@@ -40,13 +36,8 @@ for row in range(height):
         values[row][col] = data[index]
         index += 1
 
-print(values)
-
-
 actions = ['up', 'right', 'down', 'left']
 num_actions = 4
-
-
 # Start of Q-Learning implementation
 # define helper functions
 
@@ -137,7 +128,7 @@ for episode in range(1000):
         new_q_value = old_q_value + (learning_rate * temporal_diff)
         q_table[old_row][old_col][action_num] = new_q_value
 
-
+# get the best path using the q-table
 path = get_best_path(q_table, values, 3, 9)
 print(path)
 cost = get_path_cost(values, path)

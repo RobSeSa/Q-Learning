@@ -81,9 +81,9 @@ public class Q_Learning
         else if(action_name.compareTo("left") == 0 && old_col > 0) {
             new_col = old_col - 1;
         }
-        else {
-            System.out.println("Invalid move of " + action_name + " from (" + old_row + ", " + old_col + ")");
-        }
+        //else {
+        //    System.out.println("Invalid move of " + action_name + " from (" + old_row + ", " + old_col + ")");
+        //}
         State new_state = new State(new_row, new_col);
         return new_state;
     }
@@ -95,20 +95,20 @@ public class Q_Learning
         int action_num;
         State temp;
         // keep appending until terminal
-        System.out.println("Start while(!is_terminal)");
+        //System.out.println("Start while(!is_terminal)");
         int count = 0;
         while(!is_terminal(values, curr_row, curr_col)) {
             count++;
             if(count > 100) {  break; }
             temp = new State(curr_row, curr_col);
-            System.out.println("State: (" + curr_row + ", " + curr_col + ")");
+            //System.out.println("State: (" + curr_row + ", " + curr_col + ")");
             path.add(temp);
             action_num = get_next_action(q_table, 1, curr_row, curr_col);
             temp = get_next_location(curr_row, curr_col, action_num);
             curr_row = temp.getRow();
             curr_col = temp.getCol();
         }
-        System.out.println("State: (" + curr_row + ", " + curr_col + ")");
+        //System.out.println("State: (" + curr_row + ", " + curr_col + ")");
         temp = new State(curr_row, curr_col);
         path.add(temp);
         return path;
@@ -138,18 +138,18 @@ public class Q_Learning
         float temp_diff, new_q_value;
         int index, max; 
         for(int episode = 0; episode < 1000; episode++) {
-            System.out.println("\nQ_Training: Episode " + episode);
+            //System.out.println("\nQ_Training: Episode " + episode);
             curr_state = get_rand_start(values);
             // take actions from this random start state until we terminate 
             while(!is_terminal(values, curr_state.getRow(), curr_state.getCol())) {
                 // get an action
                 action_num = get_next_action(q_table, Parameters.EPSILON, curr_state.getRow(), curr_state.getCol());
                 old_state = curr_state;
-                System.out.println("oldstate: " + old_state.getRow() + ", " + old_state.getCol());
-                System.out.println("Taking action: " + Parameters.actions[action_num]);
+                //System.out.println("oldstate: " + old_state.getRow() + ", " + old_state.getCol());
+                //System.out.println("Taking action: " + Parameters.actions[action_num]);
                 // perform the action
                 curr_state = get_next_location(curr_state.getRow(), curr_state.getCol(), action_num);
-                System.out.println("currstate: " + curr_state.getRow() + ", " + curr_state.getCol());
+                //System.out.println("currstate: " + curr_state.getRow() + ", " + curr_state.getCol());
                 // receive the reward
                 reward = values[curr_state.getRow()][curr_state.getCol()];
                 // calculate temporal difference
@@ -162,13 +162,11 @@ public class Q_Learning
                     }
                 }
                 temp_diff = (float) (reward + (Parameters.DISCOUNT_FACTOR * max) - old_q_value);
-                System.out.println("temp diff: " + temp_diff + " = " + reward + " + (" + Parameters.DISCOUNT_FACTOR + " * "
-                                                 + max + ") - " + old_q_value);
+                //System.out.println("temp diff: " + temp_diff + " = " + reward + " + (" + Parameters.DISCOUNT_FACTOR + " * "
+                //                                 + max + ") - " + old_q_value);
                 // update Q-value
                 new_q_value = old_q_value + Math.round(Parameters.LEARNING_RATE * temp_diff);
-                System.out.println("new_q_value = " + new_q_value);
                 q_table[old_state.getRow()][old_state.getCol()][action_num] = Math.round(new_q_value);
-                System.out.println("actually stored = " + Math.round(new_q_value));
             }
         }
     }
@@ -245,20 +243,17 @@ public class Q_Learning
         }
 
         // test actual training function
-        System.out.println("Starting q_training");
         q_training(q_table, values);
-        System.out.println("Done q_training");
-        System.out.println("Start get best path");
         List<State> path = get_best_path(q_table, values, 3, 9);
-        System.out.println("Start print path");
         printPath(values, path);
-        System.out.println("Start print path cost");
         int cost = get_path_cost(values, path);
         System.out.println(cost);
 
+        /*
         System.out.println("Epsilon: " + Parameters.EPSILON);
         System.out.println("learning rate: " + Parameters.LEARNING_RATE);
         System.out.println("discount factor: " + Parameters.DISCOUNT_FACTOR);
         System.out.println("max cols: " + Parameters.MAX_COLS);
+        */
     }  
 } 

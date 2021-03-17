@@ -258,7 +258,7 @@ int main()
 
     // call training function
     q_training(q_table, values);
-    State_list best_path = get_best_path(q_table, values, 5, 7);
+    State_list best_path = get_best_path(q_table, values, 3, 9);
     print_path(best_path);
     int cost = get_path_cost(values, best_path);
     cout << cost << "\n";

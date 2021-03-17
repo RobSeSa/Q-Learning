@@ -74,10 +74,10 @@ def premade_maze():
 # premade maze has size 11
 premade = premade_maze()
 
-print("premade[5][5] =", premade[5][5])
-for row in range(height):
-        for col in range(width):
-            parameters.append(premade[row][col])
+#print("premade[5][5] =", premade[5][5])
+#for row in range(height):
+#        for col in range(width):
+#            parameters.append(premade[row][col])
 
 #gen_maze(parameters)
 

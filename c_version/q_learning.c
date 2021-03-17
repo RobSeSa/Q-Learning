@@ -307,7 +307,7 @@ int main() {
 
     // start the actual training
     q_training(q_table, values, epsilon, discount_factor, learning_rate);
-    state *best_path = get_best_path(q_table, values, 3, 9);
+    state *best_path = get_best_path(q_table, values, 5, 7);
     print_path(values, best_path);
     int cost = get_path_cost(values, best_path);
     printf("%d\n", cost);
