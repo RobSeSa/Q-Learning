@@ -217,6 +217,7 @@ int main()
     //if (coeff.is_open()) // if the file is open
     string buff, line;
     // read the hyper parameters
+    /*
     getline(coeff, buff, ',');
     EPSILON = stod(buff);
     getline(coeff, buff, ',');
@@ -226,6 +227,25 @@ int main()
     getline(coeff, buff, ',');
     MAX_ROWS = stoi(buff);
     getline(coeff, buff, ',');
+    MAX_COLS = stoi(buff);
+    cout << "Epsilon: " << EPSILON << "\n";
+    cout << "DC: " << DISCOUNT_FACTOR << "\n";
+    cout << "LR: " << LEARNING_RATE << "\n";
+    cout << "MAX_ROWS: " << MAX_ROWS << "\n";
+    cout << "MAX_COLS: " << MAX_COLS << "\n";
+    */
+
+    getline(coeff, line);
+    stringstream ss(line);
+    getline(ss, buff, ',');
+    EPSILON = stod(buff);
+    getline(ss, buff, ',');
+    DISCOUNT_FACTOR = stod(buff);
+    getline(ss, buff, ',');
+    LEARNING_RATE = stod(buff);
+    getline(ss, buff, ',');
+    MAX_ROWS = stoi(buff);
+    getline(ss, buff, ',');
     MAX_COLS = stoi(buff);
     cout << "Epsilon: " << EPSILON << "\n";
     cout << "DC: " << DISCOUNT_FACTOR << "\n";
@@ -311,7 +331,7 @@ int main()
     //cout << "Best path cost: " << cost << "\n";
 
     // call training function
-    //q_training(q_table, values);
+    q_training(q_table, values);
     State_list best_path = get_best_path(q_table, values, 3, 9);
     print_path(best_path);
     int cost = get_path_cost(values, best_path);
