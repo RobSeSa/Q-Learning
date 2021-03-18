@@ -6,7 +6,7 @@ March 17, 2021
 UCSC
 CSE 210A - Independent Project
 
-###Citations:
+### Citations:
 Complete Example is from this YouTube video:
 https://www.youtube.com/watch?v=iKdlKYG78j4&t=158s
 
