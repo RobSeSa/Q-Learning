@@ -115,8 +115,11 @@ State_list get_best_path(int ***q_table, int **values, int start_row, int start_
     int path_index = 0;
     int action_num;
     State next_state;
-    // continue until terminal
+    int count =  0;
+    // continue until terminal (or 100 steps)
     while(!is_terminal(values, curr_row, curr_col)) {
+        count++;
+        if(count > 100) { break; }
         path.push_back(State());
         path[path_index].row = curr_row;
         path[path_index].col = curr_col;
@@ -196,6 +199,8 @@ void q_training(int ***q_table, int **values) {
 int main()
 {
     string file = "../matrix_data.csv";
+    int start_row = 8;
+    int start_col = 8;
 
     // lines
     int i = 0;
@@ -258,7 +263,7 @@ int main()
 
     // call training function
     q_training(q_table, values);
-    State_list best_path = get_best_path(q_table, values, 3, 9);
+    State_list best_path = get_best_path(q_table, values, start_row, start_col);
     print_path(best_path);
     int cost = get_path_cost(values, best_path);
     cout << cost << "\n";

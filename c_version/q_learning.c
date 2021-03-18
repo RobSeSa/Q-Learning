@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
 
 #define NUM_ACTIONS 4
 const char *actions[] = {"up", "right", "down", "left"};
@@ -66,7 +67,8 @@ state get_rand_start(int values[], int max_rows, int max_cols) {
 // get the next action following an epsilon greedy choice
 int get_next_action(int q_table[], double epsilon, int row, int col) {
     int action_num, max_index, max, index;
-    action_num = max_index = max = -1;
+    action_num = max_index = -1;
+    max = -10000;
 
     float rand_val = (double)rand() / (double)RAND_MAX;
     //printf("random value in range 0 -> 1: %f\n", rand_val);
@@ -134,8 +136,11 @@ state *get_best_path(int q_table[], int values[], int start_row, int start_col) 
     curr_state.row = start_row;
     curr_state.col = start_col;
     int action_num;
+    int count = 0;
     // keep appending while not terminal state
     while(!is_terminal(values, curr_state)) {
+        count++;
+        if(count > 100) { break; }
         // check bounds of path_index
         if(path_index >= max_path_length) {
             // allocate more memory and update max_path_length
@@ -179,7 +184,8 @@ void print_path(int values[], state *path) {
 // training function
 void q_training(int q_table[], int values[], double epsilon, double discount_factor, double learning_rate) {
     state curr_state, old_state;
-    int action_num, reward, old_q_value, temp_diff, new_q_value;
+    int action_num, reward, old_q_value;
+    float temp_diff, new_q_value;
     int index, max; 
     for(int episode = 0; episode < 1000; episode++) {
         curr_state = get_rand_start(values, max_rows, max_cols);
@@ -206,7 +212,7 @@ void q_training(int q_table[], int values[], double epsilon, double discount_fac
             temp_diff = reward + (discount_factor * max) - old_q_value;
             // update Q-value
             new_q_value = old_q_value + (learning_rate * temp_diff);
-            q_table[convert_index(3, old_state.row, old_state.col, action_num)] = new_q_value;
+            q_table[convert_index(3, old_state.row, old_state.col, action_num)] = round(new_q_value);
         }
     }
 }
@@ -307,7 +313,7 @@ int main() {
 
     // start the actual training
     q_training(q_table, values, epsilon, discount_factor, learning_rate);
-    state *best_path = get_best_path(q_table, values, 5, 7);
+    state *best_path = get_best_path(q_table, values, 8, 8);
     print_path(values, best_path);
     int cost = get_path_cost(values, best_path);
     printf("%d\n", cost);

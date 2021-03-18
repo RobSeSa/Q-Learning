@@ -244,7 +244,7 @@ public class Q_Learning
 
         // test actual training function
         q_training(q_table, values);
-        List<State> path = get_best_path(q_table, values, 3, 9);
+        List<State> path = get_best_path(q_table, values, 8, 8);
         printPath(values, path);
         int cost = get_path_cost(values, path);
         System.out.println(cost);

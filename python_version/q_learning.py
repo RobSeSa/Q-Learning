@@ -129,7 +129,11 @@ for episode in range(1000):
         q_table[old_row][old_col][action_num] = new_q_value
 
 # get the best path using the q-table
-path = get_best_path(q_table, values, 3, 9)
-print(path)
+path = get_best_path(q_table, values, 8, 8)
+#print(path)
+# fix the format of the path
+for (x, y) in path:
+    print("({}, {}) ".format(x, y), end="")
+print()
 cost = get_path_cost(values, path)
 print(cost)
