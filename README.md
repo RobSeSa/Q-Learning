@@ -7,9 +7,7 @@ UCSC
 CSE 210A - Independent Project
 
 ### Project Report
-<p align="left">
-  <img src="https://github.com/RobSeSa/Q-Learning/blob/main/Q_Learning_Project_Report.pdf" width="400" title="Layout">
-</p>
+Full project report as pdf can be found <a href='https://www.youtube.com/watch?v=-JhL2_b1qT4&feature=youtu.be'>here</a>
 
 ### Completed versions
 - Python
